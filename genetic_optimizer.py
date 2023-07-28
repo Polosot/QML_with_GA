@@ -95,6 +95,8 @@ class GeneticOptimizer:
         return res
 
     def fit(self):
+        historical_losses = []
+
         population = self.population
         for g in range(self.G):
             losses = self.run_model(population)
@@ -103,6 +105,10 @@ class GeneticOptimizer:
             population = self.mutate(population, self.mutation_prob)
 
             print(f'Generation {g + 1}: avg loss: {np.mean(losses)}')
+
+            historical_losses.append(np.mean(losses))
+
+        return historical_losses
 
 
 if __name__ == '__main__':
