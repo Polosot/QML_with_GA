@@ -7,7 +7,6 @@ import pennylane as qml
 import numpy as np
 from numpy.random import randn, randint
 import matplotlib.pyplot as plt
-from genetic_optimizer import GeneticOptimizer
 
 # Create a model
 
@@ -83,18 +82,20 @@ def loss_function(data, weights):
 
 
 if __name__ == '__main__':
+    from genetic_optimizer import GeneticOptimizer
     # data = init_data()
     # weights = np.random.uniform(0, 2*math.pi, 2*(q_depth + 1)*n_qubits)
     # print(loss_function(data, weights))
     average_cost_list = []
     n_epochs = 10
-    opt = GeneticOptimizer()
+    data = init_data()
+    opt = GeneticOptimizer(data, loss_function)
     for i in range(1, n_epochs + 1):
         if i % 10 == 0: print("Running... Current step: ", i)
-        current_average_cost = opt.step()
-        average_cost_list.append(current_average_cost)
+        # current_average_cost = opt.run_epoch()
+        # average_cost_list.append(current_average_cost)
 
     plt.plot(average_cost_list)
-    plt.xlabel("Steps")
-    plt.ylabel("Cost function")
-    plt.title("Random coordinate descent")
+    plt.xlabel("Epochs")
+    plt.ylabel("Average cost among population")
+    plt.title("Genetic algorithm")
