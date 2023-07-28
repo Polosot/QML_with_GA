@@ -4,17 +4,17 @@ import random
 
 class GeneticOptimizer:
 
-    def __init__(self, data, model_func, G=100, population_size=10, num_cubits=3, coef_bits=8, mutation_prob=0.0001):
+    def __init__(self, model, data, loss_func, G=100, population_size=10, num_cubits=3, coef_bits=8):
 
         assert population_size % 2 == 0
 
+        self.model = model
         self.data = data
-        self.model_func = model_func
+        self.loss_func = loss_func
         self.G = G
         self.population_size = population_size
         self.num_cubits = num_cubits
         self.coef_bits = coef_bits
-        self.mutation_prob = mutation_prob
         self.population = self.init_population()
 
     def get_random_bits(self, n):
@@ -43,7 +43,7 @@ class GeneticOptimizer:
         losses = []
         for p in population:
             weights = [2 * np.pi * int(k, 2) / (2 ** self.coef_bits) for k in p]
-            loss = self.model_func(self.data, weights)
+            loss = self.loss_func(self.model, self.data, weights)
             losses.append(loss)
 
         return losses
@@ -78,30 +78,6 @@ class GeneticOptimizer:
 
         return res
 
-    def mutate_chromosome(self, chromosome, prob):
-        res = []
-        for c in chromosome:
-            mutations = [random.random() < prob for _ in range(self.coef_bits)]
-            res.append(''.join([str((int(b) + m) % 2) for b, m in zip(c, mutations)]))
-
-        return res
-
-    def mutate(self, population, prob):
-        res = []
-        for p in population:
-            res.append(self.mutate_chromosome(p, prob))
-
-        return res
-
-    def fit(self):
-        population = self.population
-        for g in range(self.G):
-            losses = self.run_model(population)
-            population = self.selection(population, losses)
-            population = self.cross_over(population)
-            population = self.mutate(population, self.mutation_prob)
-
-            print(f'Generation {g + 1}: avg loss: {np.mean(losses)}')
 
 if __name__ == '__main__':
     pass

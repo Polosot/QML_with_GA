@@ -1,10 +1,10 @@
-from main import loss_function, init_data
+from main import loss_function, init_data, qnode
 from genetic_optimizer import GeneticOptimizer
 
 
 if __name__ == '__main__':
     data = init_data()
-    go = GeneticOptimizer(data=data, model_func=loss_function, num_cubits=12)
+    go = GeneticOptimizer(model=qnode, data=data, loss_func=loss_function, num_cubits=12)
 
     # losses = go.run_model(go.population)
     # p = go.selection(go.population, losses)
