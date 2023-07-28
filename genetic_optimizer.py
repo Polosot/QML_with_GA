@@ -80,7 +80,6 @@ class GeneticOptimizer:
 
 
 
-
 if __name__ == '__main__':
     data = init_data()
     go = GeneticOptimizer(data=data, model_func=loss_function, num_cubits=12)
