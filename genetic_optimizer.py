@@ -54,7 +54,7 @@ class GeneticOptimizer:
 
         # kill and clone
         k = len(population_with_losses) // 2
-
+        population_with_losses[k:] = population_with_losses[:k]
 
 
         return population_with_losses
