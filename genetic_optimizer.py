@@ -33,6 +33,5 @@ class GeneticOptimizer:
         return res
 
 
-
 if __name__ == '__main__':
     go = GeneticOptimizer()

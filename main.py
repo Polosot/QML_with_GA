@@ -6,11 +6,8 @@ import pennylane as qml
 
 import numpy as np
 from numpy.random import randn, randint
-import os
-import time
-import math
 import matplotlib.pyplot as plt
-from matplotlib.ticker import PercentFormatter
+from genetic_optimizer import GeneticOptimizer
 
 # Create a model
 
@@ -44,17 +41,9 @@ def init_data():
     bin_indices = np.digitize(data, bins) - 1
     data_temp = ((np.arange(16) == bin_indices[:,None]).astype(int))
 
-    # plt.hist(bin_indices, bins = 16)
-
     # Make it into a probability distribution
 
     data_dist = np.sum(data_temp, axis=0) / N
-
-    # fig = plt.figure()
-    # ax = fig.add_axes([0, 0, 1, 1])
-    # y = range(16)
-    # ax.bar(y, data_dist, alpha=0.5)
-    # plt.show()
 
     return data_dist
 
@@ -94,6 +83,18 @@ def loss_function(data, weights):
 
 
 if __name__ == '__main__':
-    data = init_data()
-    weights = np.random.uniform(0, 2*math.pi, 2*(q_depth + 1)*n_qubits)
-    print(loss_function(data, weights))
+    # data = init_data()
+    # weights = np.random.uniform(0, 2*math.pi, 2*(q_depth + 1)*n_qubits)
+    # print(loss_function(data, weights))
+    average_cost_list = []
+    n_epochs = 10
+    opt = GeneticOptimizer()
+    for i in range(1, n_epochs + 1):
+        if i % 10 == 0: print("Running... Current step: ", i)
+        current_average_cost = opt.step()
+        average_cost_list.append(current_average_cost)
+
+    plt.plot(average_cost_list)
+    plt.xlabel("Steps")
+    plt.ylabel("Cost function")
+    plt.title("Random coordinate descent")
