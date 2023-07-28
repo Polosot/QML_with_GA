@@ -1,5 +1,5 @@
 import numpy as np
-from main import loss_function, init_data
+import random
 
 
 class GeneticOptimizer:
@@ -56,14 +56,27 @@ class GeneticOptimizer:
         k = len(population_with_losses) // 2
         population_with_losses[k:] = population_with_losses[:k]
 
+        new_population = [x[0] for x in population_with_losses]
 
-        return population_with_losses
+        random.shuffle(new_population)
+
+        return new_population
+
+    def cross_over(self, population):
+
+        res = []
+        for pair_id in range(self.population_size // 2):
+            i = pair_id * 2
+
+            chromosome_a = population[i]
+            chromosome_b = population[i + 1]
+
+            cross_over_i = np.random.randint(0, self.coef_bits)
+            res.append(chromosome_a[:cross_over_i] + chromosome_b[cross_over_i:])
+            res.append(chromosome_b[:cross_over_i] + chromosome_a[cross_over_i:])
+
+        return res
+
 
 if __name__ == '__main__':
-    data = init_data()
-    go = GeneticOptimizer(data=data, model_func=loss_function, num_cubits=12)
-
-    losses = go.run_model(go.population)
-    p = go.selection(go.population, losses)
-
-    print(p)
+    pass
