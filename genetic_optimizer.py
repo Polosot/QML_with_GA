@@ -1,99 +1,38 @@
-#Import Pennylane
-
-import pennylane as qml
-
-#Import other libraries
-
 import numpy as np
-from numpy.random import randn, randint
-import os
-import time
-import math
-import matplotlib.pyplot as plt
-from matplotlib.ticker import PercentFormatter
-
-# Create a model
-
-# Number of qubits
-n_qubits = 4
-
-# Number of layers within the quantum circuit
-q_depth = 2
-
-# Declare the device (Here we use in-built simulator, with 10000 shots)
-dev = qml.device("default.qubit", wires=n_qubits, shots=10000)
 
 
-def init_data():
-    # Create the data
+class GeneticOptimizer:
 
-    # Number training data samples
-    N = 10000
+    def __init__(self, G, model_class, population_size=10, num_cubits=1, coef_bits=8):
+        self.G = G
+        self.ModelClass = model_class
+        self.population_size = population_size
+        self.num_cubits = num_cubits
+        self.coef_bits = coef_bits
+        self.population = self.init_population()
 
-    mu = 1
-    sigma = 1
-    data = np.random.lognormal(mean=mu, sigma=sigma, size=N)
-    np.random.shuffle(data)
+    def get_random_bits(self, n):
 
-    # Put data into bins
+        return ''.join([str(x) for x in np.random.randint(0, 2, n)])
 
-    data_pre = np.round(data)
-    data = data_pre[data_pre <= 16]
+    def init_model_qweights(self, num_cubits):
 
-    bins = np.linspace(0, 15, num=16 )
-    bin_indices = np.digitize(data, bins) - 1
-    data_temp = ((np.arange(16) == bin_indices[:,None]).astype(int))
+        res = []
 
-    # plt.hist(bin_indices, bins = 16)
+        for _ in range(num_cubits):
+            res.append(self.get_random_bits(self.coef_bits))  # theta
+            res.append(self.get_random_bits(self.coef_bits))  # phi
 
-    # Make it into a probability distribution
+        return res
 
-    data_dist = np.sum(data_temp, axis=0) / N
+    def init_population(self):
+        res = []
+        for _ in range(self.population_size):
+            res.append(self.init_model_qweights(self.num_cubits))
 
-    # fig = plt.figure()
-    # ax = fig.add_axes([0, 0, 1, 1])
-    # y = range(16)
-    # ax.bar(y, data_dist, alpha=0.5)
-    # plt.show()
+        return res
 
-    return data_dist
-
-
-@qml.qnode(dev)
-def qnode(weights):
-
-    # Init distribution
-    # We start with uniform distribution
-    for a in range(n_qubits):
-        qml.Hadamard(wires=a)
-
-    # Variational circuit
-    # Linear Entangling layers
-    for i in range(q_depth):
-        for j in range(n_qubits):
-            qml.RY(weights[2*(i*n_qubits + j)], wires=j)
-            qml.RZ(weights[2*(i*n_qubits + j) + 1], wires=j)
-        for l in range(n_qubits):
-            if (l == (n_qubits - 1)):
-                qml.CNOT(wires=[l,0])
-            else:
-                qml.CNOT(wires=[l,l+1])
-
-    for k in range(n_qubits):
-        qml.RY(weights[(2*q_depth * n_qubits) + k ], wires=k)
-        qml.RZ(weights[(2*q_depth * n_qubits) + k + 1], wires=k)
-
-    # Measurement
-    # We want the probability distribution
-    return qml.probs(wires=range(n_qubits))
-
-
-def loss_function(data, weights):
-    probs = qnode(weights)
-    return np.sum(np.abs(np.log(probs) ** (-1)) - data)
 
 
 if __name__ == '__main__':
-    data = init_data()
-    weights = np.random.uniform(0, 2*math.pi, 2*(q_depth + 1)*n_qubits)
-    print(loss_function(data, weights))
+    go = GeneticOptimizer()
