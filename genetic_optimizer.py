@@ -4,7 +4,7 @@ import random
 
 class GeneticOptimizer:
 
-    def __init__(self, model, data, loss_func, G=100, population_size=10, num_cubits=3, coef_bits=8):
+    def __init__(self, model, data, loss_func, G=100, population_size=10, num_cubits=3, coef_bits=8, mutation_prob=0.0001):
 
         assert population_size % 2 == 0
 
@@ -15,6 +15,7 @@ class GeneticOptimizer:
         self.population_size = population_size
         self.num_cubits = num_cubits
         self.coef_bits = coef_bits
+        self.mutation_prob = mutation_prob
         self.population = self.init_population()
 
     def get_random_bits(self, n):
@@ -77,6 +78,31 @@ class GeneticOptimizer:
             res.append(chromosome_b[:cross_over_i] + chromosome_a[cross_over_i:])
 
         return res
+
+    def mutate_chromosome(self, chromosome, prob):
+        res = []
+        for c in chromosome:
+            mutations = [random.random() < prob for _ in range(self.coef_bits)]
+            res.append(''.join([str((int(b) + m) % 2) for b, m in zip(c, mutations)]))
+
+        return res
+
+    def mutate(self, population, prob):
+        res = []
+        for p in population:
+            res.append(self.mutate_chromosome(p, prob))
+
+        return res
+
+    def fit(self):
+        population = self.population
+        for g in range(self.G):
+            losses = self.run_model(population)
+            population = self.selection(population, losses)
+            population = self.cross_over(population)
+            population = self.mutate(population, self.mutation_prob)
+
+            print(f'Generation {g + 1}: avg loss: {np.mean(losses)}')
 
 
 if __name__ == '__main__':
