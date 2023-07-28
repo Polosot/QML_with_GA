@@ -96,4 +96,5 @@ def loss_function(data, weights):
 if __name__ == '__main__':
     data = init_data()
     weights = np.random.uniform(0, 2*math.pi, 2*(q_depth + 1)*n_qubits)
+    print(len(weights))
     print(loss_function(data, weights))
