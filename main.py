@@ -76,8 +76,8 @@ def qnode(weights):
     return qml.probs(wires=range(n_qubits))
 
 
-def loss_function(data, weights):
-    probs = qnode(weights)
+def loss_function(model, data, weights):
+    probs = model(weights)
     return np.sum(np.abs(np.log(probs) ** (-1)) - data)
 
 
@@ -89,7 +89,7 @@ if __name__ == '__main__':
     average_cost_list = []
     n_epochs = 10
     data = init_data()
-    opt = GeneticOptimizer(data, loss_function)
+    opt = GeneticOptimizer(qnode, data, loss_function)
     for i in range(1, n_epochs + 1):
         if i % 10 == 0: print("Running... Current step: ", i)
         # current_average_cost = opt.run_epoch()

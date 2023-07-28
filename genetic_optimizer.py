@@ -4,12 +4,13 @@ import random
 
 class GeneticOptimizer:
 
-    def __init__(self, data, model_func, G=100, population_size=10, num_cubits=3, coef_bits=8):
+    def __init__(self, model, data, loss_func, G=100, population_size=10, num_cubits=3, coef_bits=8):
 
         assert population_size % 2 == 0
 
+        self.model = model
         self.data = data
-        self.model_func = model_func
+        self.loss_func = loss_func
         self.G = G
         self.population_size = population_size
         self.num_cubits = num_cubits
@@ -42,7 +43,7 @@ class GeneticOptimizer:
         losses = []
         for p in population:
             weights = [2 * np.pi * int(k, 2) / (2 ** self.coef_bits) for k in p]
-            loss = self.model_func(self.data, weights)
+            loss = self.loss_func(self.model, self.data, weights)
             losses.append(loss)
 
         return losses
